@@ -1,322 +1,248 @@
-import React, { useState, useEffect } from "react";
+import React from 'react';
 import {
+  StyleSheet,
   Text,
   View,
-  StyleSheet,
+  FlatList,
+  Dimensions,
   TouchableOpacity,
-  SafeAreaView,
   Image,
-  Dimensions
-} from "react-native";
-
-import TextTicker from "react-native-text-ticker";
-import VerticalViewPager from "react-native-vertical-view-pager";
-
-const { width, height = height - 50 } = Dimensions.get("window");
-
-import profile from "../../../assets/perfil-marlon.jpg";
-import iconPlus from "../../../assets/iconplus.png";
-import whiteHeart from "../../../assets/white-heart-fill.png";
-import redHeart from "../../../assets/red-heart.png";
-import comment from "../../../assets/comment.png";
-import iconMusic from "../../../assets/music.png";
-import whatsapp from "../../../assets/WhatsApp_Logo.png";
-
-import api from "../../services/api.js";
-
-import { Video } from "expo-av";
-
-function Feed() {
-  const [feed, setfeed] = useState([]);
-  const [liked, setLiked] = useState(false);
-
-  function handleLike() {
-    setLiked(!liked);
+  TouchableHighlight
+} from 'react-native';
+import { Video } from 'expo-av';
+const { height, width } = Dimensions.get('window');
+const cellHeight = height * 0.85;
+const cellWidth = width;
+const viewabilityConfig = {
+  itemVisiblePercentThreshold: 80
+};
+const initialItems = [
+  {
+    id: 1,
+    poster: 'https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/instagram-clone/1.jpeg',
+    small: 'https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/instagram-clone/small/1.jpeg',
+    url: 'http://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4',
+    aspectRatio: 0.834,
+    description: 'Trabalhando Muito!!',
+    likes: 1002,
+    hashtags: '#Work #Dev',
+    place: 'Cinema do PrudenShopping',
+    authorId: 1
+  },
+  {
+    id: 2,
+    poster: 'https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/instagram-clone/2.jpeg',
+    small: 'https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/instagram-clone/small/2.jpeg',
+    url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+    aspectRatio: 0.834,
+    description: 'Code, code and more code!',
+    likes: 1002,
+    hashtags: '#Work #Dev',
+    place: 'Cinema do PrudenShopping',
+    authorId: 2
+  },
+  {
+    id: 3,
+    poster: 'https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/instagram-clone/3.jpeg',
+    small: 'https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/instagram-clone/small/3.jpeg',
+    url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+    aspectRatio: 0.834,
+    description: 'Rocketships fly away!',
+    likes: 1002,
+    hashtags: '#Work #Dev',
+    place: 'Cinema do PrudenShopping',
+    authorId: 3
   }
-
-  useEffect(() => {
-    async function LoadFeed() {
-      try {
-        const response = await api.get("/feed?_expand=author&_limit=5");
-        const data = await response.data;
-        console.log(data);
-        setfeed(data);
-        console.log(feed);
-      } catch (error) {
-        console.log("Erro da busca: " + error);
+];
+class Item extends React.PureComponent {
+  componentWillUnmount() {
+    // if (this.video) {
+    // 	this.video.unloadAsync();
+    // }
+  }
+  async play() {
+    const status = await this.video.getStatusAsync();
+    if (status.isPlaying) {
+      return;
+    }
+    return this.video.playAsync();
+  }
+  pause() {
+    if (this.video) {
+      this.video.pauseAsync();
+    }
+  }
+  render() {
+    const { id, poster, url } = this.props;
+    // console.log('props = ', this.props);
+    const uri = url + '?bust=' + id;
+    return (
+      <View style={styles.cell}>
+        <Image
+          source={{
+            uri: poster,
+            cache: 'force-cache'
+          }}
+          style={[styles.full, styles.poster]}
+        />
+        <Video
+          ref={(ref) => {
+            this.video = ref;
+          }}
+          source={{ uri }}
+          shouldPlay={false}
+          useNativeControls={true}
+          isMuted={false}
+          resizeMode="cover"
+          style={styles.full}
+        />
+        <View style={styles.overlay}>
+          <Text style={styles.overlayText}>Item no. {id}</Text>
+          <Text style={styles.overlayText}>Overlay text here</Text>
+        </View>
+      </View>
+    );
+  }
+}
+export default class Feed extends React.PureComponent {
+  state = {
+    items: [],
+    play: false
+  };
+  constructor(props) {
+    super(props);
+    this.cellRefs = {};
+  }
+  componentDidMount() {
+    this.loadItems();
+    setTimeout(this.loadItems, 1000);
+    setTimeout(this.loadItems, 1100);
+    setTimeout(this.loadItems, 1200);
+    setTimeout(this.loadItems, 1300);
+  }
+  _onViewableItemsChanged = (props) => {
+    const changed = props.changed;
+    console.log('deeeee -- ', changed);
+    changed.forEach((item) => {
+      const cell = this.cellRefs[item.key];
+      // console.log('CELL: ', cell);
+      if (cell) {
+        if (item.isViewable) {
+          cell.play();
+          this.setState({ play: true });
+        } else {
+          cell.pause();
+          this.setState({ play: false });
+        }
+      }
+    });
+  };
+  actionItem = (props) => {
+    const item = props;
+    console.log('CHANGED: ', item);
+    const cell = this.cellRefs[item.id];
+    console.log('CELL =--- ', cell);
+    if (cell) {
+      if (this.state.play) {
+        cell.pause();
+        this.setState({ play: false });
+        console.log('pause');
+      } else if (!this.state.play) {
+        cell.play();
+        this.setState({ play: true });
+        console.log('play');
       }
     }
-
-    LoadFeed();
-  }, []);
-
-  return (
-    <SafeAreaView>
-      <View style={[{ zIndex: 7 }, styles.header]}>
-        <View>
-          <TouchableOpacity>
-            <Text style={styles.textLeftHeader}>Seguindo</Text>
-          </TouchableOpacity>
-        </View>
-        <Text style={styles.spanCenterHeader}>|</Text>
-        <View>
-          <TouchableOpacity>
-            <Text style={styles.textRightHeader}>Para você</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+  };
+  loadItems = () => {
+    console.log('loading items');
+    const start = this.state.items.length;
+    const newItems = initialItems.map((item, i) => ({
+      ...item,
+      id: start + i
+    }));
+    const items = [...this.state.items, ...newItems];
+    this.setState({ items, play: false });
+  };
+  _renderItem = ({ item }) => {
+    // console.log('item --- ', item);
+    console.log(this.state.play);
+    item.status = this.state.play;
+    return (
+      <TouchableHighlight onPress={() => this.actionItem(item)}>
+        <Item
+          ref={(ref) => {
+            this.cellRefs[item.id] = ref;
+          }}
+          {...item}
+        />
+      </TouchableHighlight>
+    );
+  };
+  render() {
+    const { items, play } = this.state;
+    return (
       <View style={styles.container}>
-        <VerticalViewPager showsVerticalScrollIndicator={false}>
-          {feed.map(item => (
-            <View key={item.id} style={[styles.page_container, styles.post]}>
-              <View style={styles.video}>
-                <Video
-                  source={{
-                    //  uri: "https://drive.google.com/file/d/1dO3vE8iOz8xoikcNeaJYhbQsUv3kbOgJ/view"
-                    // uri: "http://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4"
-                    uri: item.video_url
-                  }}
-                  rate={1.0}
-                  volume={1.0}
-                  isMuted={true}
-                  resizeMode="contain"
-                  shouldPlay
-                  bounce={false}
-                  isLooping
-                  style={styles.videoPlayer}
-                  useNativeControls={false}
-                />
-              </View>
-              <View style={styles.content}>
-                <View style={styles.InnerContent}>
-                  <TouchableOpacity>
-                    <Text style={styles.name}>{item.author.name}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity>
-                    <Text style={styles.description} numberOfLines={5}>
-                      {item.description}
-                    </Text>
-                  </TouchableOpacity>
-                  <Text style={styles.hashtags}>{item.hashtags}</Text>
-                  <TouchableOpacity>
-                    <Text style={styles.translate}>VER TRADUÇÂO</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.componentMusic}>
-                    <View style={styles.imageIconMusic}>
-                      <Image style={styles.iMusic} source={iconMusic} />
-                    </View>
-                    <TextTicker
-                      style={styles.nameMusic}
-                      duration={4000}
-                      loop
-                      bounce={false}
-                      repeatSpacer={70}
-                      marqueeDelay={1000}
-                      shouldAnimateTreshold={40}
-                    >
-                      I Don’t Care - Ed Sheeran Part Justin Bieber
-                    </TextTicker>
-                  </TouchableOpacity>
-                </View>
-              </View>
-              <View style={styles.contentIcon}>
-                <View style={styles.contentIconProfile}>
-                  <TouchableOpacity>
-                    <Image
-                      source={{ uri: item.author.avatar }}
-                      style={styles.iconProfile}
-                    />
-                  </TouchableOpacity>
-                  <TouchableOpacity>
-                    <Image source={iconPlus} style={styles.iconPlusProfile} />
-                  </TouchableOpacity>
-                </View>
-                <View style={styles.iconsAction}>
-                  <View style={styles.contentIconAction}>
-                    <TouchableOpacity onPress={handleLike}>
-                      <Image
-                        source={liked ? redHeart : whiteHeart}
-                        style={styles.iconAction}
-                      />
-                    </TouchableOpacity>
-                    <Text style={styles.textActions}>153.1K</Text>
-                  </View>
-                  <TouchableOpacity style={styles.contentIconAction}>
-                    <Image source={comment} style={styles.iconAction} />
-                    <Text style={styles.textActions}>208</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.contentIconAction}>
-                    <Image source={whatsapp} style={styles.iconWhatsapp} />
-                    <Text style={styles.textActions}>Compar-tilhar</Text>
-                  </TouchableOpacity>
-                </View>
-                <View style={styles.iconsMusic}>
-                  <TouchableOpacity>
-                    <Image
-                      source={{ uri: item.author.avatar }}
-                      style={styles.iconMusic}
-                    />
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
-          ))}
-        </VerticalViewPager>
+        <FlatList
+          style={{ flex: 1 }}
+          data={items}
+          renderItem={this._renderItem}
+          keyExtractor={(item) => item.id.toString()}
+          onViewableItemsChanged={this._onViewableItemsChanged}
+          initialNumToRender={3}
+          maxToRenderPerBatch={3}
+          windowSize={5}
+          getItemLayout={(_data, index) => ({
+            length: cellHeight,
+            offset: cellHeight * index,
+            index
+          })}
+          viewabilityConfig={viewabilityConfig}
+          removeClippedSubviews={true}
+          // onClick={() => this.actionItem}
+          ListFooterComponent={
+            <TouchableOpacity onPress={this.loadItems}>
+              <Text style={{ padding: 30 }}>Load more</Text>
+            </TouchableOpacity>
+          }
+        />
       </View>
-    </SafeAreaView>
-  );
+    );
+  }
 }
-
 const styles = StyleSheet.create({
   container: {
-    width: "100%",
-    height,
-    backgroundColor: "black",
-    zIndex: 1,
-    alignSelf: "stretch"
-  },
-  post: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    width: "100%",
     flex: 1,
-    zIndex: 2,
-    alignSelf: "stretch",
-    position: "relative",
-    bottom: 30
+    backgroundColor: '#fff'
   },
-  page_container: {
-    flex: 1,
-    width,
-    height
+  cell: {
+    width: cellWidth - 20,
+    height: cellHeight - 20,
+    backgroundColor: '#eee',
+    borderRadius: 20,
+    overflow: 'hidden',
+    margin: 10
   },
-  video: {
-    width: "100%",
-    flex: 1,
-    zIndex: 2
-  },
-  videoPlayer: {
-    width: "100%",
-    zIndex: 2,
-    flex: 1
-  },
-  header: {
-    flexDirection: "row",
-    position: "absolute",
-    top: 40,
-    left: 75,
-    alignItems: "center"
-  },
-  spanCenterHeader: { color: "white", fontSize: 10 },
-  textLeftHeader: {
-    color: "grey",
-    paddingHorizontal: 10,
-    fontSize: 20
-  },
-
-  textRightHeader: {
-    color: "white",
-    paddingHorizontal: 10,
-    fontSize: 23,
-    fontWeight: "bold"
-  },
-  content: {
-    width: "75%",
-    position: "absolute",
-    left: 0,
-    bottom: 0,
-    zIndex: 3
-  },
-  InnerContent: {
-    width: "100%",
-    position: "relative",
-    bottom: 0,
-    justifyContent: "flex-end",
-    paddingHorizontal: 10,
-    flexDirection: "column"
-  },
-
-  name: { color: "white", marginVertical: 3, fontSize: 15, fontWeight: "bold" },
-  description: { color: "white", marginTop: 2, fontSize: 15 },
-  hashtags: { color: "white", fontWeight: "bold" },
-  componentMusic: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 10,
-    width: 190
-  },
-  imageIconMusic: {
-    marginRight: 15
-  },
-  iMusic: {
-    width: 20,
-    height: 20,
-    resizeMode: "contain"
-  },
-  nameMusic: {
-    color: "white",
-    fontSize: 15
-  },
-  translate: {
-    fontWeight: "bold",
-    color: "white",
-    marginVertical: 5
-  },
-  contentIcon: {
-    width: "20%",
-    position: "absolute",
-    bottom: 11,
+  overlay: {
+    position: 'absolute',
+    top: 0,
     right: 0,
-    alignItems: "center",
-    zIndex: 3
+    bottom: 0,
+    left: 0,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    padding: 40
   },
-  contentIconProfile: {
-    alignItems: "center",
-    marginBottom: 2
+  full: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0
   },
-
-  iconProfile: {
-    width: 50,
-    height: 50,
-    resizeMode: "cover",
-    borderRadius: 25,
-    borderColor: "white",
-    borderWidth: 1
+  poster: {
+    resizeMode: 'cover'
   },
-  iconPlusProfile: {
-    height: 35,
-    width: 25,
-    position: "relative",
-    bottom: 20,
-    zIndex: 5,
-    resizeMode: "contain"
-  },
-  iconsAction: {
-    alignItems: "center",
-    marginBottom: 20
-  },
-  contentIconAction: {
-    alignItems: "center",
-    marginBottom: 13
-  },
-  iconAction: {
-    height: 40,
-    width: 40
-  },
-  iconWhatsapp: {
-    height: 40,
-    width: 40,
-    resizeMode: "cover",
-    borderRadius: 20
-  },
-  textActions: { color: "white", textAlign: "center", width: 54 },
-  iconMusic: {
-    width: 50,
-    height: 50,
-    resizeMode: "cover",
-    borderRadius: 30
+  overlayText: {
+    color: '#fff'
   }
 });
-
-export default Feed;

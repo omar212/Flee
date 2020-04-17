@@ -9,26 +9,37 @@ import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 
 import Feed from "../screens/Feed";
 import Find from "../screens/Find";
-import Plus from "../screens/Plus";
+import Capture from "../screens/Plus/Capture";
 import MessageBox from "../screens/MessageBox";
 import Profile from "../screens/Profile";
+import Flee from "../screens/Flee/Flee";
+import Featured from "../screens/Featured/Featured";
+
 
 import message from "../../assets/windowscomments-grey.png";
 import userProfile from "../../assets/userProfile.png";
 import search from "../../assets/search-grey.png";
 import plusTikTokWhite from "../../assets/plusTikTok-white.png";
 import home from "../../assets/home.png";
+import star from "../../assets/star1.png";
 
 const Routes = createBottomTabNavigator(
   {
-    Inicio: Feed,
-    Descobrir: Find,
-    Plus: {
-      screen: Plus,
-      navigationOptions: {}
+    Flee: {
+      screen: Flee,
+      navigationOptions: {
+        headerTitle: 'Reset Password',
+      },
     },
-    "Caixa de Entrada": MessageBox,
-    Eu: Profile
+    Search: Find,
+    Plus: {
+      screen: Capture,
+      navigationOptions: ({ navigation }) => ({
+        tabBarVisible: false,
+      })
+    },
+    Message: MessageBox,
+    Featured: Feed
   },
   {
     tabBarOptions: {
@@ -49,11 +60,11 @@ const Routes = createBottomTabNavigator(
         let IconComponent = FontAwesome5;
         let IconName;
 
-        if (routeName === "Inicio") IconName = home;
-        else if (routeName === "Descobrir") IconName = search;
+        if (routeName === "Flee") IconName = home;
+        else if (routeName === "Search") IconName = search;
         else if (routeName === "Plus") IconName = plusTikTokWhite;
-        else if (routeName === "Caixa de Entrada") IconName = message;
-        else if (routeName === "Eu") IconName = userProfile;
+        else if (routeName === "Message") IconName = message;
+        else if (routeName === "Featured") IconName = star;
 
         return (
           <>
