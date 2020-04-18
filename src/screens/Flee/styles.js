@@ -2,6 +2,7 @@ import {
     StyleSheet,
     Dimensions
 } from "react-native";
+import { iOSUIKit } from 'react-native-typography'
 
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
@@ -15,6 +16,7 @@ const styles = StyleSheet.create({
             width: "100%",
             height: "100%",
             backgroundColor: "black",
+            // fontFamily: iOSUIKit.largeTitleEmphasized,
             zIndex: 1,
         },
         TopBackgroundImage: {
@@ -92,7 +94,7 @@ const styles = StyleSheet.create({
       spanCenterHeader: { color: "white", fontSize: 20 },
       textHeader: {
           color: "black",
-          paddingHorizontal: wp('25%'),
+          paddingHorizontal: wp('30%'),
           paddingVertical: hp('100%'),
           fontSize: hp('5%'),
       },

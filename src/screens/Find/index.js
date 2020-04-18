@@ -1,27 +1,40 @@
-import React from "react";
-import { StyleSheet, Text, View, Dimensions } from "react-native";
-import VerticalViewPager from "react-native-vertical-view-pager";
+import React, { Component } from "react";
+import { StyleSheet, Text, TouchableOpacity, View, Button } from "react-native";
 
-const { width, height } = Dimensions.get("window");
+export default class Find extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { count: 0 };
+  }
 
-export default class Find extends React.Component {
   render() {
+
     return (
-      <VerticalViewPager showsVerticalScrollIndicator={false}>
-        <View style={[styles.page_container, { backgroundColor: "pink" }]}>
-          <Text>Find Page</Text>
-        </View>
-      </VerticalViewPager>
+      <View style={styles.container}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => this.props.navigation.navigate('Flee')}
+        >
+          <Button title="Go">Press Here</Button>
+        </TouchableOpacity>
+      </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
-  page_container: {
+  container: {
     flex: 1,
     justifyContent: "center",
+    paddingHorizontal: 10
+  },
+  button: {
     alignItems: "center",
-    width,
-    height
+    backgroundColor: "#DDDDDD",
+    padding: 10
+  },
+  countContainer: {
+    alignItems: "center",
+    padding: 10
   }
 });

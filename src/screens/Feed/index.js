@@ -55,11 +55,7 @@ const initialItems = [
   }
 ];
 class Item extends React.PureComponent {
-  componentWillUnmount() {
-    // if (this.video) {
-    // 	this.video.unloadAsync();
-    // }
-  }
+
   async play() {
     const status = await this.video.getStatusAsync();
     if (status.isPlaying) {

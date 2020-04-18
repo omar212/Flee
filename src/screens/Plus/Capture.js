@@ -1,14 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { Text, View, TouchableOpacity, Navigator } from 'react-native';
+import React, { useState, useEffect, Component } from 'react';
+import { Text, View, TouchableOpacity, Navigator, Button } from 'react-native';
 import { Camera } from 'expo-camera';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import CameraRoll from '../CameraRoll/CameraRoll'
 import { Icon } from 'react-native-elements'
+import { styles } from './styles'
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+
+
 
 export default function Capture() {
   const [hasPermission, setHasPermission] = useState(null);
   const [type, setType] = useState(Camera.Constants.Type.back);
+  
+
+  const onPress = () => () => this.props.navigation.navigate('Flee')
 
   useEffect(() => {
     (async () => {
@@ -32,15 +38,25 @@ export default function Capture() {
             backgroundColor: 'transparent',
             flexDirection: 'row',
           }}>
-          <TouchableOpacity>
-            <Icon
-              iconStyle={{ top: hp('5%'), left: wp('4') }}
-              name='close'
-              type='font-awesome'
-              color='#f50'
-              size={wp('5')}
-              onPress={() => this.props.navigation.navigate('Flee')} />
-          </TouchableOpacity>
+          {/* <View style={styles.container}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => this.props.navigation.navigate('Flee')}
+            >
+              <Button title="Go">Press Here</Button>
+            </TouchableOpacity>
+          </View> */}
+          <View focusable={true} style={{ flexDirection: 'row' }}>
+              <TouchableOpacity onPress={onPress}>
+                <Icon
+                  iconStyle={{  flexDirection: 'row', display: 'flex', top: hp('5%'), left: wp('4%') }}
+                  name='close'
+                  type='font-awesome'
+                  color='#f50'
+                  size={hp('3')}
+                  onPress={onPress}/>
+              </TouchableOpacity>
+            </View>
 
           <TouchableOpacity
             onPress={() => {

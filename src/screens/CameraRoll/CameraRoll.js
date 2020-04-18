@@ -8,7 +8,9 @@ import imageIcon from '../../../assets/image-icon.png'
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { Icon } from 'react-native-elements'
 
+
 export default class ImagePickerExample extends React.Component {
+    
     state = {
         image: null,
     };

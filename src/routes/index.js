@@ -17,7 +17,6 @@ import Featured from "../screens/Featured/Featured";
 
 
 import message from "../../assets/windowscomments-grey.png";
-import userProfile from "../../assets/userProfile.png";
 import search from "../../assets/search-grey.png";
 import plusTikTokWhite from "../../assets/plusTikTok-white.png";
 import home from "../../assets/home.png";
@@ -27,9 +26,9 @@ const Routes = createBottomTabNavigator(
   {
     Flee: {
       screen: Flee,
-      navigationOptions: {
-        headerTitle: 'Reset Password',
-      },
+      navigationOptions: ({ navigation }) => ({
+        tabBarVisible: false,
+      })
     },
     Search: Find,
     Plus: {
@@ -39,7 +38,10 @@ const Routes = createBottomTabNavigator(
       })
     },
     Message: MessageBox,
-    Featured: Feed
+    Featured: {
+      screen: Feed
+    }
+      
   },
   {
     tabBarOptions: {
@@ -57,7 +59,6 @@ const Routes = createBottomTabNavigator(
     defaultNavigationOptions: ({ navigation }) => ({
       tabBarIcon: ({ focused, horizontal, tintColor }) => {
         const { routeName } = navigation.state;
-        let IconComponent = FontAwesome5;
         let IconName;
 
         if (routeName === "Flee") IconName = home;
