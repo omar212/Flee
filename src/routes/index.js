@@ -12,7 +12,7 @@ import Find from "../screens/Find";
 import Capture from "../screens/Plus/Capture";
 import MessageBox from "../screens/MessageBox";
 import Profile from "../screens/Profile";
-import Flee from "../screens/Flee/Flee";
+import Home from "../screens/Home/Home";
 import Featured from "../screens/Featured/Featured";
 
 
@@ -21,13 +21,14 @@ import search from "../../assets/search-grey.png";
 import plusTikTokWhite from "../../assets/plusTikTok-white.png";
 import home from "../../assets/home.png";
 import star from "../../assets/star1.png";
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 const Routes = createBottomTabNavigator(
   {
-    Flee: {
-      screen: Flee,
+    Home: {
+      screen: Home,
       navigationOptions: ({ navigation }) => ({
-        tabBarVisible: false,
+        tabBarVisible: true,
       })
     },
     Search: Find,
@@ -53,7 +54,7 @@ const Routes = createBottomTabNavigator(
         height: 57,
         borderTopColor: "grey",
         borderTopWidth: 0.19,
-        paddingVertical: 7
+        paddingVertical: wp(5)
       }
     },
     defaultNavigationOptions: ({ navigation }) => ({
@@ -61,7 +62,7 @@ const Routes = createBottomTabNavigator(
         const { routeName } = navigation.state;
         let IconName;
 
-        if (routeName === "Flee") IconName = home;
+        if (routeName === "Home") IconName = home;
         else if (routeName === "Search") IconName = search;
         else if (routeName === "Plus") IconName = plusTikTokWhite;
         else if (routeName === "Message") IconName = message;
@@ -77,7 +78,7 @@ const Routes = createBottomTabNavigator(
               }}
             />
             {routeName === "Plus" ? null : (
-              <Text style={{ color: "grey", fontSize: 10 }}>{routeName}</Text>
+              <Text style={{ color: "grey", fontSize: 10, width: wp(6),  marginLeft: wp('2.2'), marginTop: hp('.5') }}>{routeName}</Text>
             )}
           </>
         );
